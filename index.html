@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI住宅卫士 - 既有住宅智慧诊断平台</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">🏠</span>
+                <span class="logo-text">AI住宅卫士</span>
+                <span class="logo-sub">既有住宅智慧诊断与更新改造平台</span>
+            </div>
+            <div class="header-info">
+                <span class="case-tag">演示案例：某中学食堂宿舍旧改工程</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 流程进度条 -->
+    <div class="progress-bar">
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-num">1</div>
+                <div class="step-label">建筑信息与监测布点</div>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-num">2</div>
+                <div class="step-label">AI病害识别</div>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-num">3</div>
+                <div class="step-label">安全性评级</div>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-num">4</div>
+                <div class="step-label">改造方案生成</div>
+            </div>
+            <div class="step" data-step="5">
+                <div class="step-num">5</div>
+                <div class="step-label">鉴定报告</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- Step 1: 建筑信息录入与监测布点 -->
+        <section class="step-panel active" id="panel-1">
+            <div class="panel-header">
+                <h2>第一步：建筑信息录入与监测布点规划</h2>
+                <p class="panel-desc">录入建筑基本信息，系统依据GB/T 50344自动规划监测点位</p>
+            </div>
+            <div class="panel-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>建筑名称</label>
+                        <input type="text" id="buildingName" value="某中学食堂及宿舍楼" placeholder="请输入建筑名称">
+                    </div>
+                    <div class="form-group">
+                        <label>结构类型</label>
+                        <select id="structureType">
+                            <option value="masonry">砌体结构</option>
+                            <option value="concrete" selected>钢筋混凝土结构</option>
+                            <option value="steel">钢结构</option>
+                            <option value="mixed">混合结构</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>层数</label>
+                        <input type="number" id="floorCount" value="5" min="1" max="50">
+                    </div>
+                    <div class="form-group">
+                        <label>建筑面积(㎡)</label>
+                        <input type="number" id="area" value="3200" min="1">
+                    </div>
+                    <div class="form-group">
+                        <label>建造年代</label>
+                        <input type="number" id="buildYear" value="2001" min="1900" max="2024">
+                    </div>
+                    <div class="form-group">
+                        <label>设防烈度</label>
+                        <select id="seismicIntensity">
+                            <option>6度</option>
+                            <option selected>7度</option>
+                            <option>8度</option>
+                            <option>9度</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn btn-primary" onclick="generateMonitoringPoints()">
+                        <span class="btn-icon">📊</span> 生成监测布点方案
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadDemoData()">
+                        <span class="btn-icon">📋</span> 加载演示数据
+                    </button>
+                </div>
+
+                <div id="monitoringResult" class="result-area hidden">
+                    <h3>监测布点方案</h3>
+                    <div class="result-cards" id="monitoringCards"></div>
+                    <div class="layout-diagram">
+                        <h4>监测点平面布置示意图</h4>
+                        <canvas id="layoutCanvas" width="800" height="400"></canvas>
+                    </div>
+                    <div class="action-bar">
+                        <button class="btn btn-primary" onclick="goToStep(2)">
+                            下一步：AI病害识别 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 2: AI病害识别 -->
+        <section class="step-panel" id="panel-2">
+            <div class="panel-header">
+                <h2>第二步：AI病害智能识别</h2>
+                <p class="panel-desc">基于深度学习的多病害识别，支持裂缝、渗漏、钢筋锈蚀等</p>
+            </div>
+            <div class="panel-body">
+                <div class="upload-area">
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-icon">📷</div>
+                        <p>拖拽建筑影像到此处，或点击上传</p>
+                        <p class="upload-hint">支持 JPG/PNG 格式，建议上传外墙、内墙、屋面、梁柱等部位照片</p>
+                        <input type="file" id="fileInput" accept="image/*" multiple hidden>
+                        <button class="btn btn-secondary" onclick="document.getElementById('fileInput').click()">选择文件</button>
+                    </div>
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn btn-primary" onclick="runAIDetection()">
+                        <span class="btn-icon">🔍</span> 开始AI识别
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadDemoDetection()">
+                        <span class="btn-icon">🎯</span> 使用演示识别结果
+                    </button>
+                </div>
+
+                <div id="detectionResult" class="result-area hidden">
+                    <div class="result-summary">
+                        <div class="summary-item">
+                            <span class="summary-num" id="totalImages">0</span>
+                            <span class="summary-label">识别影像</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-num" id="totalDefects">0</span>
+                            <span class="summary-label">发现病害</span>
+                        </div>
+                        <div class="summary-item highlight">
+                            <span class="summary-num" id="seriousDefects">0</span>
+                            <span class="summary-label">严重病害</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-num" id="avgConfidence">0%</span>
+                            <span class="summary-label">平均置信度</span>
+                        </div>
+                    </div>
+
+                    <h3>病害识别结果</h3>
+                    <div class="defect-tabs">
+                        <button class="tab-btn active" data-tab="crack" onclick="switchTab('crack')">
+                            墙体裂缝 <span class="tab-count" id="crackCount">0</span>
+                        </button>
+                        <button class="tab-btn" data-tab="leak" onclick="switchTab('leak')">
+                            屋面渗漏 <span class="tab-count" id="leakCount">0</span>
+                        </button>
+                        <button class="tab-btn" data-tab="corrosion" onclick="switchTab('corrosion')">
+                            钢筋锈蚀 <span class="tab-count" id="corrosionCount">0</span>
+                        </button>
+                        <button class="tab-btn" data-tab="deformation" onclick="switchTab('deformation')">
+                            变形沉降 <span class="tab-count" id="deformCount">0</span>
+                        </button>
+                    </div>
+
+                    <div class="tab-content active" id="tab-crack">
+                        <div class="defect-list" id="crackList"></div>
+                    </div>
+                    <div class="tab-content" id="tab-leak">
+                        <div class="defect-list" id="leakList"></div>
+                    </div>
+                    <div class="tab-content" id="tab-corrosion">
+                        <div class="defect-list" id="corrosionList"></div>
+                    </div>
+                    <div class="tab-content" id="tab-deformation">
+                        <div class="defect-list" id="deformList"></div>
+                    </div>
+
+                    <div class="action-bar">
+                        <button class="btn btn-primary" onclick="goToStep(3)">
+                            下一步：安全性评级 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 3: 安全性评级 -->
+        <section class="step-panel" id="panel-3">
+            <div class="panel-header">
+                <h2>第三步：安全性评级</h2>
+                <p class="panel-desc">依据GB 50292-2015《民用建筑可靠性鉴定标准》进行分级评定</p>
+            </div>
+            <div class="panel-body">
+                <div class="action-bar">
+                    <button class="btn btn-primary" onclick="runSafetyRating()">
+                        <span class="btn-icon">📐</span> 执行安全性评级
+                    </button>
+                </div>
+
+                <div id="ratingResult" class="result-area hidden">
+                    <div class="rating-overview">
+                        <div class="rating-badge" id="ratingBadge">
+                            <div class="rating-grade" id="ratingGrade">--</div>
+                            <div class="rating-label" id="ratingLabel">--</div>
+                        </div>
+                        <div class="rating-desc" id="ratingDesc">
+                            等待评级...
+                        </div>
+                    </div>
+
+                    <h3>评级详细结果</h3>
+                    <div class="rating-detail">
+                        <div class="rating-section">
+                            <h4>构件级评级</h4>
+                            <div class="rating-table" id="componentRating"></div>
+                        </div>
+                        <div class="rating-section">
+                            <h4>子单元评级</h4>
+                            <div class="rating-table" id="subunitRating"></div>
+                        </div>
+                        <div class="rating-section">
+                            <h4>鉴定单元评级</h4>
+                            <div class="rating-table" id="unitRating"></div>
+                        </div>
+                    </div>
+
+                    <div class="rating-standard">
+                        <h4>评级标准说明（GB 50292-2015）</h4>
+                        <table class="standard-table">
+                            <thead>
+                                <tr><th>等级</th><th>含义</th><th>处理要求</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="grade-Au">Au</td><td>安全性符合标准要求</td><td>不影响整体承载，正常使用</td></tr>
+                                <tr><td class="grade-Bu">Bu</td><td>安全性略低于标准要求</td><td>尚不显著影响整体承载</td></tr>
+                                <tr><td class="grade-Cu">Cu</td><td>安全性不符合标准要求</td><td>显著影响整体承载，应采取措施</td></tr>
+                                <tr><td class="grade-Du">Du</td><td>安全性严重不符合标准要求</td><td>严重影响整体承载，必须立即采取措施</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="action-bar">
+                        <button class="btn btn-primary" onclick="goToStep(4)">
+                            下一步：改造方案生成 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 4: 改造方案生成 -->
+        <section class="step-panel" id="panel-4">
+            <div class="panel-header">
+                <h2>第四步：改造方案生成</h2>
+                <p class="panel-desc">基于评级结果与病害清单，智能推荐改造措施并测算成本</p>
+            </div>
+            <div class="panel-body">
+                <div class="action-bar">
+                    <button class="btn btn-primary" onclick="generatePlan()">
+                        <span class="btn-icon">🔧</span> 生成改造方案
+                    </button>
+                </div>
+
+                <div id="planResult" class="result-area hidden">
+                    <div class="plan-overview">
+                        <div class="plan-summary">
+                            <div class="summary-item">
+                                <span class="summary-num" id="planCount">0</span>
+                                <span class="summary-label">改造措施</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-num" id="totalCost">0</span>
+                                <span class="summary-label">预估总造价(万元)</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-num" id="planPeriod">0</span>
+                                <span class="summary-label">预计工期(天)</span>
+                            </div>
+                            <div class="summary-item highlight">
+                                <span class="summary-num" id="costPerArea">0</span>
+                                <span class="summary-label">单方造价(元/㎡)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="plan-tabs">
+                        <button class="plan-tab active" data-plan="structure" onclick="switchPlanTab('structure')">结构加固</button>
+                        <button class="plan-tab" data-plan="waterproof" onclick="switchPlanTab('waterproof')">防水翻新</button>
+                        <button class="plan-tab" data-plan="pipeline" onclick="switchPlanTab('pipeline')">管线更新</button>
+                        <button class="plan-tab" data-plan="cost" onclick="switchPlanTab('cost')">成本测算</button>
+                    </div>
+
+                    <div class="plan-tab-content active" id="plan-structure">
+                        <div class="plan-list" id="structurePlan"></div>
+                    </div>
+                    <div class="plan-tab-content" id="plan-waterproof">
+                        <div class="plan-list" id="waterproofPlan"></div>
+                    </div>
+                    <div class="plan-tab-content" id="plan-pipeline">
+                        <div class="plan-list" id="pipelinePlan"></div>
+                    </div>
+                    <div class="plan-tab-content" id="plan-cost">
+                        <div class="cost-table" id="costTable"></div>
+                    </div>
+
+                    <div class="action-bar">
+                        <button class="btn btn-primary" onclick="goToStep(5)">
+                            下一步：生成鉴定报告 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Step 5: 鉴定报告 -->
+        <section class="step-panel" id="panel-5">
+            <div class="panel-header">
+                <h2>第五步：鉴定报告生成</h2>
+                <p class="panel-desc">自动生成符合规范要求的房屋安全鉴定报告</p>
+            </div>
+            <div class="panel-body">
+                <div class="action-bar">
+                    <button class="btn btn-primary" onclick="generateReport()">
+                        <span class="btn-icon">📄</span> 生成鉴定报告
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.print()">
+                        <span class="btn-icon">🖨️</span> 打印/导出PDF
+                    </button>
+                </div>
+
+                <div id="reportResult" class="result-area hidden">
+                    <div class="report-container" id="reportContent">
+                        <div class="report-header">
+                            <h1>房屋安全鉴定报告</h1>
+                            <div class="report-meta">
+                                <span>报告编号：AI-2024-001</span>
+                                <span>鉴定日期：2024年XX月XX日</span>
+                                <span>鉴定依据：GB 50292-2015</span>
+                            </div>
+                        </div>
+                        <div class="report-body" id="reportBody"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <p>AI住宅卫士 © 2024 | 既有住宅AI智慧诊断与更新改造方案 | 校赛参赛原型</p>
+    </footer>
+
+    <!-- 模态框 -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">提示</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="js/data.js"></script>
+    <script src="js/ai-detection.js"></script>
+    <script src="js/safety-rating.js"></script>
+    <script src="js/plan-generator.js"></script>
+    <script src="js/report.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
